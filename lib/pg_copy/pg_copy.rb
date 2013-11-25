@@ -148,6 +148,15 @@ module PgCopy
 
               file_handle.close
               table_name = self.table_name
+              special_columns = ['primary']
+              given_attrs = given_attrs.map do |attr|
+                if special_columns.include?(attr)
+                  "\"#{attr}\""
+                else
+                  attr
+                end
+              end
+                
               copy_string = "copy #{table_name} (#{given_attrs.join(', ')}) from stdin csv"
               ms = Benchmark.ms  do
                 ActiveRecord::Base.connection.execute copy_string
